@@ -8,11 +8,8 @@
 options(stringsAsFactors=FALSE)
 
 library(plyr)
-library(reshape2)
 library(httr)
 library(rjson)
-library(stringr)
-library(lubridate)
 
 args <- commandArgs(trailingOnly = TRUE)
 
