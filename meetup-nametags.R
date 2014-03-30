@@ -10,6 +10,7 @@ options(stringsAsFactors=FALSE)
 library(plyr)
 library(httr)
 library(rjson)
+library(methods)
 
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -22,7 +23,7 @@ api = "https://api.meetup.com"
 service = "2/events"
 request.str = "%s/%s?key=%s&sign=true&group_urlname=%s&status=upcoming"
 request <- sprintf(request.str, api, service, api_key, meetup_urlname)
-
+message("getting events")
 events <- GET(request)
 stop_for_status(events)
 
@@ -44,6 +45,7 @@ getSomeRSVPs <- function(api, api.key, event.id, offset=0, page=page.size) {
     member_ids <- unlist(llply(rsvps$results, function(r) r$member$member_id))
     member_ids
 }
+message("getting RSVPs")
 member_ids <- llply(seq.int(from=0,to=floor(event_rsvps/page.size)),
                function(o) getSomeRSVPs(api, api_key, event_id, offset=o, page=page.size))
 member_ids <- unlist(member_ids)
@@ -61,6 +63,7 @@ getSomeProfiles <- function(api, api.key, group_urlname, member_ids) {
                                                    role=if ('role' %in% names(r)) r$role else ''))
 }
 member_ids_df <- data.frame(member_ids, group=floor(seq_along(member_ids)/20))
+message("getting profiles")
 profiles <- ddply(member_ids_df, .(group), function(id_df) {
     id_str <- paste(id_df$member_ids, collapse=',')
     getSomeProfiles(api, api_key, meetup_urlname, id_str)
